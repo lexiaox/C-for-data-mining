@@ -1,0 +1,3 @@
+
+=== Checking Intersection: ALL 3 LISTS ===
+  Result: None.

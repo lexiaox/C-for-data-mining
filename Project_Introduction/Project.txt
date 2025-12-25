@@ -1,0 +1,52 @@
+2025_12_03
+
+Compare: Group1 VS Group2
+Group1: age < 30
+Group2: age in [30, 50]
+Group3: age > 50
+
+Steps:
+
+Step 1. Extract data with respect to groups, then log2(n+1) to shrink data
+Step 2. Compare(Group1, Group2, Group3) with t-test for differentially epxressed genes 
+Step 3. Sort with p-values of t-test ascendently for top 50 genes, grouply
+Step 4. Compare the three sets for intersections e.g. IFNG
+Step 5. PPT for your pains and gains
+
+
+
+
+
+2024_09_06
+Schedule to weeks
+
+reference:
+https://codingzap.com/c-program-to-display-calendar-year/
+
+https://www.w3resource.com/c-programming-exercises/practice/c-programming-practice-exercises-35.php
+
+
+
+
+2023_10_05
+
+0. B plus tree (principle with demos of 10 integers, degree/order=3, source code, screen shot, FILE operation)
+C1 (320230940771, )
+
+1.  Long (>12) and Complex (1+!+Q+q) password checker & Hash to file to store.
+
+2. Linear Algebra functions e.g. add, subtract, multiplication, input, output, SVD, Echelon form, Elimination, Eigenvalues and Eigenvectors. Examples should be documented and demonstrated. Command history is logged down.
+
+
+
+2023_12_12
+1. Read the data from file "GSE205962_gset.txt" into 2-dimentional array (matrix)
+2. Twenty-one columns e.g., ID, Blood_Stasis (3), Qi_Blood_Deficiency (4), Liver_Kidney_Deficiency (3), Wind_Dampness_Obstruction (3), Cold_Dampness_Obstruction (3), and Healthy_Control (4).
+3. For each of the six groups: one-vs-all others,
+     [1] up-regulated genes (min_value_of_group > max_value_all_others)
+     [2] down-regulated genes (max_value_of_group < min_value_all_others)
+4. Mapping ID to Gene_Symbols with file "GSE205962_ID_mapping.txt"
+5. Count the number of up- and down- regulated genes for each of the six groups (12 files e.g., up_A, down_A, ...)
+6. Count the frequencies of up- and down- regulated genes (2 files e.g. totalo_up, total_down)
+7. Sort descendant on the frequencies of up- and down- regulated genes and write to file "Frequencies.txt" with columns of ID, Gene_Symbol, and Frequency.
+8. Write your PPT with "Pains & Gains".

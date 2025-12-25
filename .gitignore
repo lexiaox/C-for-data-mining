@@ -1,0 +1,18 @@
+# Ignore binaries (编译出的可执行文件)
+step1
+step2
+step3
+
+# Ignore object files (编译中间产物)
+*.o
+
+# Ignore large data files (忽略大 CSV)
+data/*.csv
+
+# Ignore analysis results (结果每次运行都会生成，不必版本控制)
+t_test_results.txt
+results/*.txt
+
+# OS generated files
+.DS_Store
+Thumbs.db

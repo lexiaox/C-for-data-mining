@@ -1,0 +1,312 @@
+>>>>>>>>>>> from DeepSeek, 20251215
+
+我来为你提供C语言实现的t检验代码，包括配对和非配对两个版本。
+
+1. 配对样本t检验
+
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+
+// 配对样本t检验
+double paired_t_test(double *group1, double *group2, int n, double *t_value) {
+    if (n <= 1) {
+        fprintf(stderr, "Error: Sample size must be greater than 1.\n");
+        return -1;
+    }
+    
+    // 计算差值
+    double *diff = (double *)malloc(n * sizeof(double));
+    double diff_sum = 0.0;
+    
+    for (int i = 0; i < n; i++) {
+        diff[i] = group1[i] - group2[i];
+        diff_sum += diff[i];
+    }
+    
+    // 计算差值的均值
+    double diff_mean = diff_sum / n;
+    
+    // 计算差值的标准差
+    double diff_variance = 0.0;
+    for (int i = 0; i < n; i++) {
+        diff_variance += pow(diff[i] - diff_mean, 2);
+    }
+    diff_variance /= (n - 1);
+    double diff_std = sqrt(diff_variance);
+    
+    // 计算标准误
+    double se = diff_std / sqrt(n);
+    
+    // 计算t值
+    if (se == 0.0) {
+        free(diff);
+        *t_value = 0;
+        return 1.0; // 如果标准差为0，说明两组数据完全相同
+    }
+    
+    *t_value = diff_mean / se;
+    
+    // 自由度
+    int df = n - 1;
+    
+    free(diff);
+    
+    // 这里返回t值，p值计算需要额外函数
+    return df; // 返回自由度
+}
+
+// 计算p值（双尾检验）
+double calculate_p_value(double t_value, int df) {
+    // 使用近似方法计算双尾p值
+    // 注意：这是一个简化版本，实际应用中可能需要更精确的方法
+    double p = 0.0;
+    
+    if (df <= 0) return 1.0;
+    
+    // 使用t分布近似计算
+    double x = df / (df + t_value * t_value);
+    double term = sqrt(x * (1 - x));
+    
+    // 基于beta分布计算
+    double a = 0.5 * df;
+    double b = 0.5;
+    
+    // 使用不完全beta函数近似
+    // 这里使用简化计算，实际应用可能需要更精确的实现
+    p = 2 * (1 - 0.5 * pow(1 - x, a) * pow(x, b));
+    
+    if (p < 0) p = 0;
+    if (p > 1) p = 1;
+    
+    return p;
+}
+2. 独立样本t检验（等方差假设）
+c
+// 独立样本t检验（假设方差相等）
+double independent_t_test_equal_var(double *group1, int n1, 
+                                    double *group2, int n2, 
+                                    double *t_value) {
+    if (n1 <= 1 || n2 <= 1) {
+        fprintf(stderr, "Error: Sample sizes must be greater than 1.\n");
+        return -1;
+    }
+    
+    // 计算第一组的均值和方差
+    double sum1 = 0.0, sum_sq1 = 0.0;
+    for (int i = 0; i < n1; i++) {
+        sum1 += group1[i];
+        sum_sq1 += group1[i] * group1[i];
+    }
+    double mean1 = sum1 / n1;
+    double var1 = (sum_sq1 - sum1 * sum1 / n1) / (n1 - 1);
+    
+    // 计算第二组的均值和方差
+    double sum2 = 0.0, sum_sq2 = 0.0;
+    for (int i = 0; i < n2; i++) {
+        sum2 += group2[i];
+        sum_sq2 += group2[i] * group2[i];
+    }
+    double mean2 = sum2 / n2;
+    double var2 = (sum_sq2 - sum2 * sum2 / n2) / (n2 - 1);
+    
+    // 计算合并方差
+    double pooled_var = ((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2);
+    
+    // 计算标准误
+    double se = sqrt(pooled_var * (1.0 / n1 + 1.0 / n2));
+    
+    if (se == 0.0) {
+        *t_value = 0;
+        return (n1 + n2 - 2); // 返回自由度
+    }
+    
+    // 计算t值
+    *t_value = (mean1 - mean2) / se;
+    
+    // 自由度
+    int df = n1 + n2 - 2;
+    
+    return df;
+}
+
+
+3. 独立样本t检验（不等方差 - Welch's t检验）
+
+// Welch's t检验（不假设方差相等）
+double welch_t_test(double *group1, int n1, 
+                    double *group2, int n2, 
+                    double *t_value) {
+    if (n1 <= 1 || n2 <= 1) {
+        fprintf(stderr, "Error: Sample sizes must be greater than 1.\n");
+        return -1;
+    }
+    
+    // 计算第一组的均值和方差
+    double sum1 = 0.0, sum_sq1 = 0.0;
+    for (int i = 0; i < n1; i++) {
+        sum1 += group1[i];
+        sum_sq1 += group1[i] * group1[i];
+    }
+    double mean1 = sum1 / n1;
+    double var1 = (sum_sq1 - sum1 * sum1 / n1) / (n1 - 1);
+    
+    // 计算第二组的均值和方差
+    double sum2 = 0.0, sum_sq2 = 0.0;
+    for (int i = 0; i < n2; i++) {
+        sum2 += group2[i];
+        sum_sq2 += group2[i] * group2[i];
+    }
+    double mean2 = sum2 / n2;
+    double var2 = (sum_sq2 - sum2 * sum2 / n2) / (n2 - 1);
+    
+    // 计算t值（Welch's t检验）
+    double se = sqrt(var1 / n1 + var2 / n2);
+    
+    if (se == 0.0) {
+        *t_value = 0;
+        // 近似自由度
+        return (n1 < n2 ? n1 : n2) - 1;
+    }
+    
+    *t_value = (mean1 - mean2) / se;
+    
+    // 计算Welch-Satterthwaite自由度
+    double numerator = pow(var1 / n1 + var2 / n2, 2);
+    double denominator = pow(var1 / n1, 2) / (n1 - 1) + 
+                         pow(var2 / n2, 2) / (n2 - 1);
+    
+    double df = numerator / denominator;
+    
+    return df;
+}
+
+
+4. 完整示例和测试代码
+
+// 打印统计信息
+void print_statistics(double *data, int n, const char *label) {
+    double sum = 0.0, sum_sq = 0.0;
+    double min_val = data[0], max_val = data[0];
+    
+    for (int i = 0; i < n; i++) {
+        sum += data[i];
+        sum_sq += data[i] * data[i];
+        if (data[i] < min_val) min_val = data[i];
+        if (data[i] > max_val) max_val = data[i];
+    }
+    
+    double mean = sum / n;
+    double var = (sum_sq - sum * sum / n) / (n - 1);
+    double std = sqrt(var);
+    
+    printf("%s:\n", label);
+    printf("  Size: %d\n", n);
+    printf("  Mean: %.4f\n", mean);
+    printf("  Std:  %.4f\n", std);
+    printf("  Min:  %.4f\n", min_val);
+    printf("  Max:  %.4f\n", max_val);
+    printf("\n");
+}
+
+int main() {
+    // 测试数据 - 配对样本
+    double group1_paired[] = {68, 75, 80, 71, 73, 79, 69, 72, 74, 70};
+    double group2_paired[] = {65, 72, 78, 70, 71, 76, 68, 70, 72, 68};
+    int n_paired = 10;
+    
+    // 测试数据 - 独立样本
+    double group1_indep[] = {68, 75, 80, 71, 73, 79, 69, 72, 74, 70};
+    double group2_indep[] = {65, 72, 78, 70, 71, 76, 68, 70, 72, 68, 75, 77};
+    int n1_indep = 10;
+    int n2_indep = 12;
+    
+    printf("=== 配对样本t检验 ===\n");
+    print_statistics(group1_paired, n_paired, "Group 1 (Paired)");
+    print_statistics(group2_paired, n_paired, "Group 2 (Paired)");
+    
+    double t_paired;
+    double df_paired = paired_t_test(group1_paired, group2_paired, n_paired, &t_paired);
+    
+    if (df_paired >= 0) {
+        double p_paired = calculate_p_value(t_paired, (int)df_paired);
+        printf("配对t检验结果:\n");
+        printf("  t值: %.4f\n", t_paired);
+        printf("  自由度: %.0f\n", df_paired);
+        printf("  双尾p值: %.6f\n", p_paired);
+        
+        if (p_paired < 0.05) {
+            printf("  结果: 差异显著 (p < 0.05)\n");
+        } else {
+            printf("  结果: 差异不显著 (p >= 0.05)\n");
+        }
+    }
+    
+    printf("\n=== 独立样本t检验（等方差）===\n");
+    print_statistics(group1_indep, n1_indep, "Group 1 (Independent)");
+    print_statistics(group2_indep, n2_indep, "Group 2 (Independent)");
+    
+    double t_indep_equal;
+    double df_indep_equal = independent_t_test_equal_var(
+        group1_indep, n1_indep, group2_indep, n2_indep, &t_indep_equal);
+    
+    if (df_indep_equal >= 0) {
+        double p_indep_equal = calculate_p_value(t_indep_equal, (int)df_indep_equal);
+        printf("独立样本t检验（等方差）结果:\n");
+        printf("  t值: %.4f\n", t_indep_equal);
+        printf("  自由度: %.0f\n", df_indep_equal);
+        printf("  双尾p值: %.6f\n", p_indep_equal);
+        
+        if (p_indep_equal < 0.05) {
+            printf("  结果: 差异显著 (p < 0.05)\n");
+        } else {
+            printf("  结果: 差异不显著 (p >= 0.05)\n");
+        }
+    }
+    
+    printf("\n=== Welch's t检验（不等方差）===\n");
+    double t_welch;
+    double df_welch = welch_t_test(group1_indep, n1_indep, group2_indep, n2_indep, &t_welch);
+    
+    if (df_welch >= 0) {
+        double p_welch = calculate_p_value(t_welch, (int)df_welch);
+        printf("Welch's t检验结果:\n");
+        printf("  t值: %.4f\n", t_welch);
+        printf("  自由度: %.1f\n", df_welch);
+        printf("  双尾p值: %.6f\n", p_welch);
+        
+        if (p_welch < 0.05) {
+            printf("  结果: 差异显著 (p < 0.05)\n");
+        } else {
+            printf("  结果: 差异不显著 (p >= 0.05)\n");
+        }
+    }
+    
+    return 0;
+}
+
+
+5. 编译和运行
+编译命令：
+
+bash
+gcc -o t_test t_test.c -lm
+运行：
+
+bash
+./t_test
+注意事项：
+p值计算：代码中的calculate_p_value函数是一个简化版本。对于生产环境，建议：
+
+使用更精确的t分布计算库
+或查找t分布表进行近似
+
+假设检验：
+配对t检验要求数据是相关的配对观测
+独立t检验（等方差）假设两组方差相等
+Welch's t检验不要求方差相等，更稳健
+
+数据要求：
+数据应近似正态分布
+样本量不能太小（通常n>30）
+内存管理：代码中使用了动态内存分配，确保释放分配的内存。
