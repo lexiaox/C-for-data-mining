@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: SLE Analysis CI
 
 on:
   push:
@@ -8,16 +8,31 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
+    # 1. 下载代码
     - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
-    - name: make
+
+    # 2. 准备数据环境 (模拟我们之前做的事)
+    - name: Setup Data Directory
+      run: |
+        mkdir -p data
+        # 注意：因为大 CSV 没上传，这里我们可能没法跑完整的 step2
+        # 但我们可以上传那个小的 ID_Age.txt 来测试 step1
+        # 如果你上传了 ID_Age.txt 到 data/ 目录，这里不需要 mv，根据你实际结构调整
+        if [ -f GSE277909_ID_Age.txt ]; then mv GSE277909_ID_Age.txt data/; fi
+
+    # 3. 编译代码 (这是核心！)
+    - name: Compile Code
       run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+
+    # 4. 验证 Step 1 (单元测试)
+    # 只要 step1 能跑通，说明环境和编译都没问题
+    - name: Test Step 1
+      run: |
+        if [ -f data/GSE277909_ID_Age.txt ]; then
+          ./step1
+        else
+          echo "Skipping step1 run because data is missing (expected)"
+        fi
