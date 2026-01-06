@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/step2.dir/src/step2_analysis.c.o CMakeFiles/step2.dir/src/common.c.o -o step2  -lm 

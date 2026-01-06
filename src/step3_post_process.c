@@ -75,11 +75,7 @@ int main() {
     qsort(idx2, n, sizeof(int), cmp_t2);
     qsort(idx3, n, sizeof(int), cmp_t3);
 
-    // 打印 Top 5 (G1 vs G3) 看看最显著的
-    printf("\n--- Top 5 (G1 vs G3: Young vs Old) ---\n");
-    for(int i=0; i<5; i++) printf("%s (T=%.2f)\n", all_genes[idx3[i]].id, all_genes[idx3[i]].t[3]);
-
-    // 核心：全方位找交集
+    // 找交集
     print_intersection(idx1, idx2, "G1vG2 (Young-Mid) AND G2vG3 (Mid-Old)");
     print_intersection(idx1, idx3, "G1vG2 (Young-Mid) AND G1vG3 (Young-Old)");
     print_intersection(idx2, idx3, "G2vG3 (Mid-Old)   AND G1vG3 (Young-Old)");

@@ -10,7 +10,7 @@ void clean_token(char *str) {
     *dst = '\0';
 }
 
-// 分组逻辑
+// 分组
 int get_grp(int age) {
     if (age < 30) return 1;
     if (age <= 50) return 2;
@@ -18,7 +18,7 @@ int get_grp(int age) {
     return 0;
 }
 
-// 核心：加载样本函数
+// 加载数据
 int load_samples(const char *fname, Sample **list_out) {
     FILE *fp = fopen(fname, "r");
     if (!fp) {
@@ -36,23 +36,21 @@ int load_samples(const char *fname, Sample **list_out) {
     }
     while (fgets(line, sizeof(line), fp)) n++;
 
-    // 2. 分配内存
     Sample *list = (Sample *)malloc(n * sizeof(Sample));
     if (!list) { 
         fclose(fp); 
         return -1; 
     }
 
-    // 3. 第二次扫描：读取数据
     rewind(fp);
     
-    // [注意这里]：必须检查 rewind 后的 fgets 返回值
     if (fgets(line, sizeof(line), fp) == NULL) {
         free(list);
         fclose(fp);
         return -1;
     }
 
+    // 2.第二次扫描：存储数据
     int i = 0;
     while (i < n && fscanf(fp, "%s %d", list[i].id, &list[i].age) != EOF) {
         clean_token(list[i].id);
@@ -62,6 +60,6 @@ int load_samples(const char *fname, Sample **list_out) {
     }
     fclose(fp);
     
-    *list_out = list; // 把数组指针传出去
+    *list_out = list; // 传值 
     return n;
 }

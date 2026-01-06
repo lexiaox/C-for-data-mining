@@ -1,9 +1,9 @@
 #include "common.h"
 
 #define MAX_LINE 200000 
-#define MAX_SAMPLES 500 // 用于 map 数组的大小
+#define MAX_SAMPLES 500 
 
-// --- 标程 (Standard Code) START ---
+// T检验
 double calculate_p_value(double t_value, int df) {
     double p = 0.0;
     if (df <= 0) return 1.0;
@@ -35,7 +35,7 @@ double welch_t_test(double *group1, int n1, double *group2, int n2, double *t_va
     double denominator = pow(var1 / n1, 2) / (n1 - 1) + pow(var2 / n2, 2) / (n2 - 1);
     return numerator / denominator;
 }
-// --- 标程 END ---
+// 标程 END 
 
 int find_idx_by_id(Sample *list, int n, char *id) {
     for (int i = 0; i < n; i++) {
@@ -45,10 +45,10 @@ int find_idx_by_id(Sample *list, int n, char *id) {
 }
 
 int main() {
-    // 1. 调用公共模块加载样本
+    // 1. 加载样本
     Sample *samples = NULL;
     int n_samples = load_samples("data/GSE277909_ID_Age.txt", &samples);
-    printf("Step 2 (Modular): Loaded %d samples.\n", n_samples);
+    printf("Step 2 : Loaded %d samples.\n", n_samples);
 
     FILE *fp_in = fopen("data/GSE277909_genecounts_SLE_bulk.csv", "r");
     if (!fp_in) { printf("Error: CSV missing.\n"); return 1; }
@@ -57,8 +57,8 @@ int main() {
     int col_map[MAX_SAMPLES]; 
     int col_count = 0;
 
-    // Pass 1: Library Sizes
-    printf("Pass 1: Calculating Library Sizes...\n");
+    // pass1: 处理数据表的表头
+    printf("Pass 1: 处理数据表的表头\n");
     if (fgets(line, sizeof(line), fp_in)) {
         char *token = strtok(line, ","); 
         token = strtok(NULL, ","); 
@@ -86,7 +86,7 @@ int main() {
     }
     
     // Pass 2: T-test
-    printf("Pass 2: Applying Welch's T-Test...\n");
+    printf("Pass 2: T检验...\n");
     rewind(fp_in); 
     if(fgets(line, sizeof(line), fp_in) == NULL) return 1;
 
@@ -95,7 +95,7 @@ int main() {
 
     int gene_idx = 0;
     double g1_data[MAX_SAMPLES], g2_data[MAX_SAMPLES], g3_data[MAX_SAMPLES];
-
+    //第二次深度扫描
     while (fgets(line, sizeof(line), fp_in)) {
         int n1 = 0, n2 = 0, n3 = 0;
         char *token = strtok(line, ",");
@@ -136,7 +136,7 @@ int main() {
     }
     printf("\nDone. Processed %d genes.\n", gene_idx);
     
-    free(samples); // 记得释放内存
+    free(samples); // 释放内存
     fclose(fp_in);
     fclose(fp_out);
     return 0;

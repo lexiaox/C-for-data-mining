@@ -1,0 +1,5 @@
+/home/ldy/C-for-data-mining/build/CMakeFiles/step1.dir
+/home/ldy/C-for-data-mining/build/CMakeFiles/step2.dir
+/home/ldy/C-for-data-mining/build/CMakeFiles/step3.dir
+/home/ldy/C-for-data-mining/build/CMakeFiles/edit_cache.dir
+/home/ldy/C-for-data-mining/build/CMakeFiles/rebuild_cache.dir
